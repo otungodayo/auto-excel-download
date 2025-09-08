@@ -23,7 +23,7 @@ jobs:
         run: python main.py
 
       - name: Upload Excel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: excel-file
           path: output.xlsx
