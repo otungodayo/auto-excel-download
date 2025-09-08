@@ -1,0 +1,14 @@
+name: Notify Teams
+
+on:
+  workflow_dispatch: # 手動実行用のトリガー
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Teams
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d '{"text": "GitHub Actions から Teams に通知テスト 🎉"}' \
+               ${{ secrets.TEAMS_WEBHOOK_URL }}
