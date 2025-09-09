@@ -1,4 +1,4 @@
-name: PM2.5 Data Logger and Teams Notifier
+name: BackData PM2.5 Data Logger and Teams Notifier
 
 on:
   schedule:
