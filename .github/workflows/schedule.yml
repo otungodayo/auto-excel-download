@@ -23,7 +23,7 @@ jobs:
       - name: Run script
         run: python main.py
         env:
-          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL }}
 
       - name: Upload CSV as Artifact
         uses: actions/upload-artifact@v4
