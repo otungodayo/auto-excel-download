@@ -2,6 +2,7 @@ import datetime
 import requests
 import pandas as pd
 import os
+import glob
 
 # --- PM2.5 データ取得 ---
 today = datetime.date.today()
@@ -36,19 +37,30 @@ filename = f"PM2.5_{year_name}_{month_name}月_{timestamp}.csv"
 while len(df.columns) < 6:
     df[f'col{len(df.columns)+1}'] = ""
 
+# F列2行目に平均値
 df.at[1, df.columns[5]] = mean_pm25
-df.to_csv(filename, index=False)
 
+df.to_csv(filename, index=False, encoding="utf-8-sig")
 print(f"保存完了: {filename}")
 print(f"D列（{d_col_name}）のPM2.5平均値: {mean_pm25:.2f}")
 
-# --- Teams 通知 ---
-webhook_url = os.environ["TEAMS_WEBHOOK"]
-# GitHub Actions Artifact の URL は workflow の run ID と Artifact 名で作る
-# ここでは簡易的にユーザーに手動でリンクを作る案内も含めます
-artifact_link = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/suites/{os.environ['GITHUB_RUN_ID']}/artifacts"
+# --- 古いCSV整理（容量対策：直近30ファイル以外削除） ---
+csv_files = sorted(glob.glob("PM2.5_*.csv"))
+max_files = 30
+if len(csv_files) > max_files:
+    for old_file in csv_files[:-max_files]:
+        os.remove(old_file)
+        print(f"古いCSV削除: {old_file}")
+
+# --- Teams通知 ---
+webhook_url = os.environ["TEAMS_WEBHOOK_URL"]
+# 最新CSVのGitHub Rawリンク
+repo = os.environ["GITHUB_REPOSITORY"]
+branch = os.environ.get("GITHUB_REF", "main").split('/')[-1]
+raw_url = f"https://github.com/{repo}/raw/{branch}/{filename}"
+
 message = {
-    "text": f"最新のPM2.5平均値（{year_name}/{month_name}）: {mean_pm25:.2f}\nCSV ダウンロード: {artifact_link}"
+    "text": f"最新のPM2.5平均値（{year_name}/{month_name}）: {mean_pm25:.2f}\nCSVダウンロード: {raw_url}"
 }
 
 r = requests.post(webhook_url, json=message)

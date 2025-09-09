@@ -1,4 +1,4 @@
-name: PM2.5 Data Logger and Teams Notifier
+name: PM2.5 Logger and Teams Notifier
 
 on:
   schedule:
@@ -18,17 +18,19 @@ jobs:
           python-version: "3.x"
 
       - name: Install dependencies
-        run: pip install pandas requests
+        run: pip install pandas requests openpyxl
 
       - name: Run script
         run: python main.py
         env:
-          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REF: ${{ github.ref }}
 
-      - name: Upload CSV as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pm25-data
-          path: PM2.5_*.csv
+      - name: Commit CSV to repository
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add PM2.5_*.csv
+          git commit -m "Add hourly PM2.5 CSV" || echo "No changes to commit"
+          git push
