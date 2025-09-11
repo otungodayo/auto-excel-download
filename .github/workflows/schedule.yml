@@ -1,8 +1,6 @@
 name: PM2.5 Logger and Teams Notifier
 
 on:
-  schedule:
-    - cron: "0 * * * *"  # 毎時0分
   workflow_dispatch:
 
 jobs:
